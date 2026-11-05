@@ -1,6 +1,6 @@
 app_name = "dt_tenant"
 app_title = "Dt Tenant"
-app_publisher = "Dhana Technologies"
+app_publisher = "NDF Technology Labs Solutions LTD"
 app_description = "Dhana technoligies tenant apps for renting customers"
 app_email = "enquiries@dhanatehcnologies.com"
 app_license = "agpl-3.0"
@@ -281,4 +281,3 @@ fixtures = [
 payment_gateway_settings = [
     "Flutterwave Settings"
 ]
-
