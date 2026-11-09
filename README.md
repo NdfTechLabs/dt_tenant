@@ -83,3 +83,53 @@ Configured checks include Ruff, ESLint, Prettier, and file-validation hooks. Wor
 ## License
 
 AGPL-3.0. See [`license.txt`](license.txt).
+
+
+---
+
+# DT Master and NDF integration
+
+## M4.0 — Agreed architecture
+
+**Status: Completed (2026-11-09).**
+
+DT Tenant is the tenant-facing companion to DT Master. The M4 architecture preserves that boundary:
+
+- DT Tenant provides marketplace and subscription self-service to tenant users.
+- DT Tenant submits application installation, upgrade and removal requests to DT Master through authenticated APIs.
+- DT Master owns the App Installation Request record, validates the tenant/site and entitlement, determines whether a Bench rebuild is needed, and owns orchestration status.
+- DT Tenant displays or receives request progress; it does not provision Bench Environments or operate Docker.
+- Tenant Installed App remains a site-level inventory. It records what is installed on this particular site, not everything available in the shared Bench.
+- Bench Environment Application is the separate Bench-level inventory owned by DT Master.
+- A Tenant Site belongs to one Bench Environment. Infrastructure Node owns infrastructure and may host multiple Bench Environments.
+
+NDF Frappe Docker supplies immutable images and deployment artifacts to DT Master. DT Tenant does not call NDF directly.
+
+## M4.1 — Integration contract and architecture
+
+**Status: In progress.**  
+**Implementation status: Not started under M4.1 approval.**
+
+DT Tenant's M4.1 responsibilities are to define and document:
+
+1. The authenticated request contract sent to DT Master for app installation, upgrade and removal.
+2. Request identifiers and the status information returned to the tenant UI.
+3. How subscription entitlements and marketplace approvals are presented to DT Master for authoritative validation.
+4. How asynchronous progress and terminal failures are communicated back to the tenant.
+5. How retries and duplicate submissions are handled without creating duplicate operations.
+6. Which tenant-side records remain authoritative and which status fields are synchronized from DT Master.
+
+### Ownership rules
+
+- DT Tenant remains responsible for customer-facing self-service and tenant-local access control.
+- DT Master remains authoritative for infrastructure, Bench Environment, deployment candidates, builds, deployment execution and App Installation Request lifecycle.
+- NDF Frappe Docker remains authoritative for image composition, dependency resolution, image validation and deployment artifact production.
+- Tenant Installed App must not be repurposed as the Bench application inventory.
+- Tenant Modules and Tenant Allowed Module continue to represent Frappe module/user-access configuration; they are not application-runtime inventory.
+
+### Cross-repository architecture records
+
+- [DT Master M4 architecture](https://github.com/NdfTechLabs/dt_master# m4--ndf-frappe-docker-integration)
+- [NDF Frappe Docker M4 architecture](https://github.com/NdfTechLabs/frappe_docker/blob/main/images/ndf/README.md)
+
+The API payloads, authentication scopes, status model and retry/idempotency rules remain M4.1 design deliverables. This document does not claim that those contracts have already been implemented.
