@@ -129,7 +129,7 @@ DT Tenant's M4.1 responsibilities are to define and document:
 
 ### Cross-repository architecture records
 
-- [DT Master M4 architecture](https://github.com/NdfTechLabs/dt_master# m4--ndf-frappe-docker-integration)
+- [DT Master M4 architecture](https://github.com/NdfTechLabs/dt_master/blob/develop/README.md)
 - [NDF Frappe Docker M4 architecture](https://github.com/NdfTechLabs/frappe_docker/blob/main/images/ndf/README.md)
 
 The API payloads, authentication scopes, status model and retry/idempotency rules remain M4.1 design deliverables. This document does not claim that those contracts have already been implemented.
