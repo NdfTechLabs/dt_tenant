@@ -107,10 +107,10 @@ NDF Frappe Docker supplies immutable images and deployment artifacts to DT Maste
 
 ## M4.1 — Integration contract and architecture
 
-**Status: In progress.**  
-**Implementation status: Not started under M4.1 approval.**
+**Status: Complete (2026-11-09).** The cross-repository request, authorization, operation lifecycle, tenant identity and callback/realtime contracts were accepted in the final M4.1 review and approved by the platform owner.  
+**Implementation authorization: Not granted.** Implementation remains pending a separate explicit authorization.
 
-DT Tenant's M4.1 responsibilities are to define and document:
+DT Tenant's M4.1 architecture responsibilities were to define and document the following contracts; they are now accepted. Their implementation and runtime verification remain assigned to M4.5–M4.7:
 
 1. The authenticated request contract sent to DT Master for app installation, upgrade and removal.
 2. Request identifiers and the status information returned to the tenant UI.
@@ -135,4 +135,4 @@ DT Tenant's M4.1 responsibilities are to define and document:
 - [DT Master M4 architecture](https://github.com/NdfTechLabs/dt_master/blob/develop/README.md)
 - [NDF Frappe Docker M4 architecture](https://github.com/NdfTechLabs/frappe_docker/blob/main/images/ndf/README.md)
 
-The accepted authorization policy is an M4.1 design baseline, not evidence of implementation. API payload schemas, concrete endpoint permissions, operation status/error contracts, credential rotation/revocation enforcement, callback validation and retry/idempotency behavior must be implemented and tested in their assigned M4 milestones. Every mutation must be correlated to a durable operation ID; tenant users receive only events belonging to their registered tenant. Realtime events are notifications, not authorization grants.
+The accepted authorization policy is the completed M4.1 design baseline, not evidence of implementation. API payload schemas, concrete endpoint permissions, operation status/error contracts, credential rotation/revocation enforcement, callback validation and retry/idempotency behavior must be implemented and tested in their assigned M4 milestones. Every mutation must be correlated to a durable operation ID; tenant users receive only events belonging to their registered tenant. Realtime events are notifications, not authorization grants.
