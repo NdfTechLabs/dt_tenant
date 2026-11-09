@@ -121,9 +121,12 @@ DT Tenant's M4.1 responsibilities are to define and document:
 
 ### Ownership rules
 
-- DT Tenant remains responsible for customer-facing self-service and tenant-local access control.
-- DT Master remains authoritative for infrastructure, Bench Environment, deployment candidates, builds, deployment execution and App Installation Request lifecycle.
+- DT Tenant remains responsible for customer-facing self-service and tenant-local access control. It validates the acting tenant user and role before forwarding an authorized request.
+- DT Master remains authoritative for infrastructure, Bench Environment, deployment candidates, builds, deployment execution, tenant binding and App Installation Request lifecycle. It independently validates the authenticated service identity, tenant status, Bench binding, subscription eligibility, application availability and requested operation.
 - NDF Frappe Docker remains authoritative for image composition, dependency resolution, image validation and deployment artifact production.
+- Platform, tenant and service identities are distinct. DT Tenant retains the existing Frappe API key/secret mechanism for inter-app authentication using tenant-specific least-privilege credentials, protected storage, rotation and revocation. OAuth2 client credentials are not required for the initial integration.
+- Tenant Users may view available and installed applications but cannot perform application lifecycle operations. Tenant Managers may install, upgrade and uninstall applications on their own site. Downgrade and reinstall require explicit confirmation and audit logging. Platform Operators alone may add/remove applications from a Bench Environment or change product images/runtime dependencies.
+- Site-level uninstall is not Bench-level removal. Removing an application from a Bench Environment is a platform operation and must account for every tenant site using it.
 - Tenant Installed App must not be repurposed as the Bench application inventory.
 - Tenant Modules and Tenant Allowed Module continue to represent Frappe module/user-access configuration; they are not application-runtime inventory.
 
@@ -132,4 +135,4 @@ DT Tenant's M4.1 responsibilities are to define and document:
 - [DT Master M4 architecture](https://github.com/NdfTechLabs/dt_master/blob/develop/README.md)
 - [NDF Frappe Docker M4 architecture](https://github.com/NdfTechLabs/frappe_docker/blob/main/images/ndf/README.md)
 
-The API payloads, authentication scopes, status model and retry/idempotency rules remain M4.1 design deliverables. This document does not claim that those contracts have already been implemented.
+The accepted authorization policy is an M4.1 design baseline, not evidence of implementation. API payload schemas, concrete endpoint permissions, operation status/error contracts, credential rotation/revocation enforcement, callback validation and retry/idempotency behavior must be implemented and tested in their assigned M4 milestones. Every mutation must be correlated to a durable operation ID; tenant users receive only events belonging to their registered tenant. Realtime events are notifications, not authorization grants.
