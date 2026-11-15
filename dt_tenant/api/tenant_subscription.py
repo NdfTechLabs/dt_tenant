@@ -1,8 +1,12 @@
 import frappe
 import requests
-from urllib.parse import urlparse
 
-from dt_tenant.controllers.capabilities import fetch_capabilities
+from dt_tenant.controllers.capabilities import (
+    CapabilitySyncError,
+    fetch_capabilities,
+    get_master_connection,
+    get_tenant_fqdn,
+)
 from dt_tenant.controllers.capability_sync import resync_capabilities
 
 @frappe.whitelist()
@@ -18,21 +22,15 @@ def get_capabilities():
 
 def _master_request(method, payload=None, http_method="POST"):
 
-    settings = frappe.get_single("Tenant Settings")
+    try:
+        master_url, headers = get_master_connection()
+    except CapabilitySyncError as e:
+        frappe.throw(str(e))
 
-    if not settings.master_url:
-        frappe.throw("Master URL not configured")
-
-    url = f"{settings.master_url.rstrip('/')}/api/method/{method}"
-
-    headers = {
-        "Authorization": f"token {settings.api_key}:{settings.api_secret}"
-    }
-
-    fqdn = urlparse(frappe.utils.get_url()).hostname
+    url = f"{master_url}/api/method/{method}"
 
     data = payload or {}
-    data["fqdn"] = fqdn
+    data["fqdn"] = get_tenant_fqdn()
 
     if http_method == "GET":
         response = requests.get(url, headers=headers, params=data, timeout=(5, 60))
@@ -69,23 +67,19 @@ def get_billing_history(limit=12, offset=0):
 @frappe.whitelist()
 def download_invoice(invoice_name,prt_format):
 
-    settings = frappe.get_single("Tenant Settings")
-
-    if not settings.master_url:
-        frappe.throw("Master URL not configured")
-
-    if not settings.api_key or not settings.api_secret:
-        frappe.throw("Master API credentials not configured")
+    try:
+        master_url, auth_headers = get_master_connection()
+    except CapabilitySyncError as e:
+        frappe.throw(str(e))
 
     try:
         response = requests.get(
-            f"{settings.master_url.rstrip('/')}/api/method/dt_master.api.billing.download_invoice_pdf",
-            headers={
-                "Authorization": f"token {settings.api_key}:{settings.api_secret}"
-            },
+            f"{master_url}/api/method/dt_master.api.billing.download_invoice_pdf",
+            headers=auth_headers,
             params={
                 "invoice_name": invoice_name,
-                "prt_format": prt_format
+                "prt_format": prt_format,
+                "fqdn": get_tenant_fqdn()
             },
             timeout=10,
             stream=True

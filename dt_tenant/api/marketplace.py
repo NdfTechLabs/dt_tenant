@@ -1,18 +1,19 @@
 import requests
 import frappe
-from urllib.parse import urlparse
+
+from dt_tenant.controllers.capabilities import CapabilitySyncError, get_master_connection, get_tenant_fqdn
 
 
 def _master_api_call(path, payload):
 
-    settings = frappe.get_single("Tenant Settings")
+    try:
+        master_url, auth_headers = get_master_connection()
+    except CapabilitySyncError as e:
+        frappe.throw(str(e))
 
-    url = f"{settings.master_url}{path}"
+    url = f"{master_url}{path}"
 
-    headers = {
-        "Authorization": f"token {settings.api_key}:{settings.api_secret}",
-        "Content-Type": "application/json",
-    }
+    headers = {**auth_headers, "Content-Type": "application/json"}
 
     response = requests.post(
         url,
@@ -23,9 +24,6 @@ def _master_api_call(path, payload):
 
     response.raise_for_status()
     return response.json().get("message")
-
-def get_tenant_fqdn():
-    return urlparse(frappe.utils.get_url()).hostname
 
 @frappe.whitelist()
 def install_extension(extension_name):
@@ -68,8 +66,6 @@ def uninstall_extension(extension_name):
 
 @frappe.whitelist()
 def publish_install_update(extension, status, action_status, error=None, site=None):
-
-    print(f"Publishing install update: {extension}, {status}, {action_status}, {error}, {site}",f"tenant:{frappe.local.site}")
 
     frappe.publish_realtime(
         event="extension_install_update",

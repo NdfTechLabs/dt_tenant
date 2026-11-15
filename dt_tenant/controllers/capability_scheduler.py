@@ -30,7 +30,7 @@ def run_scheduled_sync():
         return
 
     # 2. Credentials must exist
-    if not settings.api_key or not settings.api_secret:
+    if not settings.api_key or not settings.get_password("api_secret", raise_exception=False):
         return
 
     # 3. Cooldown after failure
