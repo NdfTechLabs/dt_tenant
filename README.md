@@ -39,7 +39,7 @@ Choose an app branch compatible with your deployment. Install `dt_master` on the
 ## Configuration
 
 1. Register the tenant FQDN and its customer/subscription in `dt_master`. Configure the subscription's allowed roles/modules on the master.
-2. Set **Tenant Settings** → `master_url`, `api_key`, and `api_secret` to the management URL and credentials. Protect access to these settings; never put credentials in documentation or source control.
+2. Set **Tenant Settings** → `master_url`, `api_key`, and `api_secret` to the management URL and the credentials of this tenant's dedicated **Master API User** on the management site. The secret is stored encrypted. Remote configuration through `dt_tenant.api.settings.configure` is limited to System Managers and to these fields plus `enable_capability_sync`. Never put credentials in documentation or source control.
 3. Confirm the tenant's effective site URL resolves to the FQDN registered on the master. Capability requests derive the tenant identity from that URL.
 4. Review the lifecycle and permission effects below, then run an initial synchronization on a test site:
 
@@ -52,9 +52,9 @@ Choose an app branch compatible with your deployment. Install `dt_master` on the
 
 ## Permission and lifecycle cautions
 
-Synchronization is not read-only: it replaces synchronized users' roles and blocked modules, removes obsolete tenant role/module records and references, and preserves specific built-in roles/modules defined in the controller. `Administrator` is excluded from the main user-application loop. Back up and test the permission model before enabling synchronization for existing users.
+Synchronization is not read-only: it removes obsolete tenant role/module records and references, then recomputes each enabled system user's roles and blocked modules with the same rule the User hooks apply — the user's tenant role/module assignments (direct or through a Tenant Role Profile), limited to what the plan allows. A user with no tenant assignments ends up with no plan roles. `Employee` is kept when already held, and the `Core`, `Desk` and `Custom` modules are never blocked. `Administrator` is excluded. Back up and test the permission model before enabling synchronization for existing users.
 
-The current lifecycle code treats `Active`, `Trialing`, and `Cancelled` as active; `Grace Period` has a separate path; `Unpaid` and `Completed` restrict users and disable automatic synchronization. After a restriction, do not assume the disabled scheduler will detect a later payment automatically—review the state and trigger synchronization/re-enable it as appropriate.
+The lifecycle code treats `Active`, `Trialing`, and `Cancelled` as active; `Grace Period` keeps full access and keeps synchronizing; `Unpaid` and `Completed` restrict users: non-manager users are disabled and Tenant Managers are reduced to the subscription pages. What a restriction changed is recorded in Tenant Settings (`restriction_state`), and the next synchronization that sees a paid status re-enables exactly those users and restores those assignments — users disabled for any other reason stay disabled. Scheduled synchronization keeps running while restricted so that a payment is noticed; sites restricted by an earlier release had it switched off and need `enable_capability_sync` turned back on once.
 
 Lifecycle enforcement is invoked during capability synchronization. The presence of `security/subscription_guard.py` does not mean a global per-request subscription guard is registered in `hooks.py`.
 

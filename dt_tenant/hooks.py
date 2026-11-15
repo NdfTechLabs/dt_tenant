@@ -4,11 +4,11 @@ app_publisher = "NDF Technology Labs Solutions LTD"
 app_description = "Dhana technoligies tenant apps for renting customers"
 app_email = "enquiries@dhanatehcnologies.com"
 app_license = "agpl-3.0"
-app_logo_url = "/assets/dt_master/images/DHANA.svg"
+app_logo_url = "/assets/dt_tenant/images/DHANA.svg"
 
 website_context = {
-	"favicon": "/assets/dt_master/images/favicon.ico",
-	"splash_image": "/assets/dt_master/images/DHANA.png"
+	"favicon": "/assets/dt_tenant/images/favicon.ico",
+	"splash_image": "/assets/dt_tenant/images/DHANA.png"
 }
 
 # Apps

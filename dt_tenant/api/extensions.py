@@ -1,6 +1,7 @@
 import requests
 import frappe
-from urllib.parse import urlparse
+
+from dt_tenant.controllers.capabilities import CapabilitySyncError, get_master_connection, get_tenant_fqdn
 
 
 def normalize_version(version):
@@ -24,12 +25,12 @@ def normalize_version(version):
 @frappe.whitelist()
 def get_marketplace_extensions(tab=None, limit=12, offset=0):
 
-    settings = frappe.get_single("Tenant Settings")
+    try:
+        master_url, auth_headers = get_master_connection()
+    except CapabilitySyncError as e:
+        frappe.throw(str(e))
 
-    if not settings.master_url:
-        frappe.throw("Master URL not configured")
-
-    fqdn = urlparse(frappe.utils.get_url()).hostname
+    fqdn = get_tenant_fqdn()
 
     frappe_version = frappe.__version__
     normalized_frappe_version=normalize_version(frappe_version)
@@ -38,10 +39,8 @@ def get_marketplace_extensions(tab=None, limit=12, offset=0):
     frappe_patch = normalized_frappe_version[2]
 
     response = requests.get(
-        f"{settings.master_url.rstrip('/')}/api/method/dt_master.api.extensions.get_extensions",
-        headers={
-            "Authorization": f"token {settings.api_key}:{settings.api_secret}"
-        },
+        f"{master_url}/api/method/dt_master.api.extensions.get_extensions",
+        headers=auth_headers,
         params={
             "tab": tab,
             "limit": limit,

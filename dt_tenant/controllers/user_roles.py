@@ -1,6 +1,12 @@
 import frappe
 from .capabilities import get_capabilities
 
+# Roles a user keeps if they already hold them, whatever the plan lists.
+ALWAYS_KEEP_ROLES = {"Employee"}
+
+# Framework modules every desk user needs; never blocked.
+ALWAYS_ALLOW_MODULES = {"Core", "Desk", "Custom"}
+
 
 def assign_roles(doc, method=None,save=True):
 
@@ -58,8 +64,10 @@ def assign_roles(doc, method=None,save=True):
     # --------------------------------
     # 4️⃣ Combine sources
     # --------------------------------
-    final_roles = (profile_roles | user_roles) & allowed_roles
-    final_modules = (profile_modules | user_modules) & allowed_modules
+    current_roles = {row.role for row in doc.get("roles") or []}
+
+    final_roles = ((profile_roles | user_roles) & allowed_roles) | (ALWAYS_KEEP_ROLES & current_roles)
+    final_modules = ((profile_modules | user_modules) & allowed_modules) | ALWAYS_ALLOW_MODULES
 
     # --------------------------------
     # 5️⃣ Apply system roles

@@ -10,7 +10,8 @@
   "api_secret",
   "enable_capability_sync",
   "last_capability_sync",
-  "capability_snapshot"
+  "capability_snapshot",
+  "restriction_state"
  ],
  "fields": [
   {
@@ -29,7 +30,7 @@
   },
   {
    "fieldname": "api_secret",
-   "fieldtype": "Data",
+   "fieldtype": "Password",
    "label": "Master API Secret"
   },
   {
@@ -46,14 +47,23 @@
   {
    "fieldname": "capability_snapshot",
    "fieldtype": "Long Text",
-   "label": "Capability Snapshot"
+   "label": "Capability Snapshot",
+   "read_only": 1
+  },
+  {
+   "description": "What the last subscription restriction changed, so it can be undone exactly.",
+   "fieldname": "restriction_state",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Restriction State",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-03-10 20:59:40.384094",
+ "modified": "2026-11-15 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Dt Tenant",
  "name": "Tenant Settings",
